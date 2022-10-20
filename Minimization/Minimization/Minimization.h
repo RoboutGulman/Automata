@@ -64,14 +64,42 @@ TemporaryAutomataInfo OneStep(const vector<vector<int>> statesTransitions, const
 }
 
 template <typename T>
+Automata<T> DeleteUnvisitedStates(const Automata<T>& automata)
+{
+	Automata<T> result = automata;
+	set<int> indexesOfVisitedStates;
+	for (auto state : automata.states)
+	{
+		for (auto transition : state.transitions)
+		{
+			if (state.index != transition)
+			{
+				indexesOfVisitedStates.insert(transition);
+			}
+		}
+	}
+	
+	for (int i = 1; i < automata.states.size(); i++)
+	{
+		if (indexesOfVisitedStates.find(i) == indexesOfVisitedStates.end())
+		{
+			result.stateNames.erase(result.stateNames.begin() + i);
+			result.states.erase(result.states.begin()+i);
+		}
+	}
+	return result;
+}
+
+template <typename T>
 Automata<T> MinimizeAutomata(const Automata<T>& automata)
 {
+	Automata<T> automataWithoutUnvisitedStates = DeleteUnvisitedStates<T>(automata);
 	Automata<T> result;
 	TemporaryAutomataInfo newTempAut;
 	map<T, int> outputsToGroup;
 	vector<vector<int>> statesTransitions;
 
-	for (auto state : automata.states)
+	for (auto state : automataWithoutUnvisitedStates.states)
 	{
 		if (!outputsToGroup[state.output])
 		{
@@ -99,9 +127,9 @@ Automata<T> MinimizeAutomata(const Automata<T>& automata)
 			{
 				AutomataState<T> state;
 				state.index = it->first;
-				state.output = automata.states[state.index].output;
+				state.output = automataWithoutUnvisitedStates.states[state.index].output;
 				vector<int> transitions;
-				for (auto transition : automata.states[state.index].transitions)
+				for (auto transition : automataWithoutUnvisitedStates.states[state.index].transitions)
 				{
 					transitions.push_back(newTempAut.stateIndexToGroup.find(transition)->second - 1);
 				}
@@ -116,6 +144,6 @@ Automata<T> MinimizeAutomata(const Automata<T>& automata)
 		string newStateName = "S" + to_string(i);
 		result.stateNames.push_back(newStateName);
 	}
-	result.inputAlphabet = automata.inputAlphabet;
+	result.inputAlphabet = automataWithoutUnvisitedStates.inputAlphabet;
 	return result;
 }

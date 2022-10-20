@@ -149,7 +149,7 @@
   <ItemGroup>
     <ClCompile Include="InputAndOutput.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="Template.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputAndOutput.h" />
