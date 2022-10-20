@@ -71,21 +71,6 @@ TemporaryAutomataInfo OneStep(const vector<vector<int>> statesTransitions, const
 			result.stateIndexToGroup[j] = uniqueTransitionsToNewGroups[tempStatesTrans[j]];
 		}
 	}
-
-	/* cout << result.groupsNumber << endl;
-	map<int, int>::iterator it = result.stateIndexToGroup.begin();
-	for (int i = 0; it != result.stateIndexToGroup.end(); it++, i++)
-	{ // выводим их
-		cout << "state " << it->first << " group " << it->second << endl;
-	}*/
-	/* for (auto vec : tempStatesTrans)
-	{
-		for (auto p : vec)
-		{
-			cout << p << ' ';
-		}
-		cout << endl;
-	}*/
 	return result;
 }
 
@@ -128,7 +113,7 @@ MooreAutomata MinimizeMooreAutomata(const MooreAutomata& moore)
 				vector<int> transitions;
 				for (auto transition : moore.states[state.index].transitions)
 				{
-					transitions.push_back(newTempAut.stateIndexToGroup.find(transition)->second);
+					transitions.push_back(newTempAut.stateIndexToGroup.find(transition)->second - 1);
 				}
 				state.transitions = transitions;
 				result.states.push_back(state);
@@ -141,22 +126,65 @@ MooreAutomata MinimizeMooreAutomata(const MooreAutomata& moore)
 		string newStateName = "S" + to_string(i);
 		result.stateNames.push_back(newStateName);
 	}
-
 	result.inputAlphabet = moore.inputAlphabet;
+	return result;
+}
 
-	/* cout << state.index << ' ' << state.output << endl;
-		for (auto trans: state.transitions)
+MealyAutomata MinimizeMealyAutomata(const MealyAutomata& mealy)
+{
+	MealyAutomata result;
+	TemporaryAutomataInfo newTempAut;
+	map<vector<string>, int> outputsToGroup;
+	vector<vector<int>> statesTransitions;
+
+	for (auto state : mealy.states)
+	{
+		if (!outputsToGroup[state.output])
 		{
-			cout << trans << ' ';
+			newTempAut.groupsNumber++;
+			outputsToGroup[state.output] = newTempAut.groupsNumber;
 		}
-		cout << endl;*/
 
-	/* map<int, int>::iterator it = newTempAut.stateIndexToGroup.begin();
-	for (int i = 0; it != newTempAut.stateIndexToGroup.end(); it++, i++)
-	{ // выводим их
-		cout << "state " << it->first << " group " << it->second << endl;
+		statesTransitions.push_back(state.transitions);
+		newTempAut.stateIndexToGroup[state.index] = outputsToGroup[state.output];
 	}
-	// OneStep(moore, oldTempAut);
-	*/
+
+	TemporaryAutomataInfo oldTempAut;
+
+	while (oldTempAut != newTempAut)
+	{
+		oldTempAut = newTempAut;
+		newTempAut = OneStep(statesTransitions, oldTempAut);
+	}
+
+	for (int i = 1; i <= newTempAut.groupsNumber; i++)
+	{
+		for (auto it = newTempAut.stateIndexToGroup.begin(); it != newTempAut.stateIndexToGroup.end(); it++)
+		{
+			if (it->second == i)
+			{
+				MealyState state;
+				state.index = it->first;
+				state.output = mealy.states[state.index].output;
+				vector<int> transitions;
+				for (auto transition : mealy.states[state.index].transitions)
+				{
+					transitions.push_back(newTempAut.stateIndexToGroup.find(transition)->second - 1);
+				}
+				state.transitions = transitions;
+				result.states.push_back(state);
+				break;
+			}
+		}
+	}
+
+	for (int i = 1; i <= result.states.size(); i++)
+	{
+		string newStateName = "S" + to_string(i);
+		result.stateNames.push_back(newStateName);
+	}
+	result.inputAlphabet = mealy.inputAlphabet;
+	return result;
+
 	return result;
 }

@@ -50,4 +50,7 @@
     <None Include="packages.config" />
     <None Include="moore2.csv" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="mealy2.csv" />
+  </ItemGroup>
 </Project>

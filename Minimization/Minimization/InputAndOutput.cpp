@@ -4,24 +4,6 @@
 
 using namespace std;
 
-bool GetLineWithoutFirst(ifstream& input, vector<string>& result, vector<string>& inputAlphabet,
-	bool firstElementToAlphabet = false)
-{
-	result.clear();
-	string buffer;
-	if (getline(input, buffer))
-	{
-		boost::algorithm::split(result, buffer, boost::is_any_of(";"));
-		if (firstElementToAlphabet)
-		{
-			inputAlphabet.push_back(result[0]);
-		}
-		result.erase(result.begin());
-		return true;
-	}
-	return false;
-}
-
 vector<vector<string>> ReadFileAsMatrix(const string& inputFileName)
 {
 	ifstream input;
@@ -66,16 +48,15 @@ MooreAutomata ReadMoore(const string& inputFileName)
 	vector<vector<string>> matrix = ReadFileAsMatrix(inputFileName);
 
 	MooreAutomata moore;
+
 	matrix[0].erase(matrix[0].begin(), matrix[0].begin() + 2);
+	moore.inputAlphabet = matrix[0];
 
 	for (int i = 1; i < matrix.size(); i++)
 	{
 		moore.stateNames.push_back(matrix[i][1]);
 	}
-
 	map<string, int> stateNameToIndex = GetIndexedMapForVector(moore.stateNames);
-
-	moore.inputAlphabet = matrix[0];
 
 	for (int i = 1; i < matrix.size(); i++)
 	{
@@ -95,28 +76,34 @@ MooreAutomata ReadMoore(const string& inputFileName)
 
 MealyAutomata ReadMealy(const string& inputFileName)
 {
+	vector<vector<string>> matrix = ReadFileAsMatrix(inputFileName);
+
 	MealyAutomata mealy;
-	ifstream input;
-	input.open(inputFileName);
-	vector<string> str;
-	GetLineWithoutFirst(input, mealy.states, str);
 
-	while (GetLineWithoutFirst(input, str, mealy.inputAlphabet, true))
+	matrix[0].erase(matrix[0].begin());
+	mealy.inputAlphabet = matrix[0];
+
+	for (int i = 1; i < matrix.size(); i++)
 	{
-		vector<pair<int, string>> result;
+		mealy.stateNames.push_back(matrix[i][0]);
+	}
+	map<string, int> stateNameToIndex = GetIndexedMapForVector(mealy.stateNames);
 
-		for (auto point : str)
+	for (int i = 1; i < matrix.size(); i++)
+	{
+		MealyState state;
+		state.index = i - 1;
+		matrix[i].erase(matrix[i].begin());
+		for (auto transition : matrix[i])
 		{
 			vector<string> vec;
-			pair<int, string> p;
-			boost::algorithm::split(vec, point, boost::is_any_of("/"));
-			auto iter = std::find(mealy.states.begin(), mealy.states.end(), vec[0]);
-			size_t index = std::distance(mealy.states.begin(), iter);
-			p = make_pair(index, vec[1]);
-			result.push_back(p);
+			boost::algorithm::split(vec, transition, boost::is_any_of("/"));
+			state.transitions.push_back(stateNameToIndex[vec[0]]);
+			state.output.push_back(vec[1]);
 		}
-		mealy.transitionTable.push_back(result);
+		mealy.states.push_back(state);
 	}
+
 	return mealy;
 }
 
@@ -133,17 +120,18 @@ void WriteMealyToFile(const MealyAutomata& mealy, const string& outputFileName)
 {
 	std::ofstream output;
 	output.open(outputFileName);
-	PrintVector(output, mealy.states);
-	int count = 0;
-	for (auto row : mealy.transitionTable)
+	PrintVector(output, mealy.stateNames);
+
+	for (int i = 0; i < mealy.inputAlphabet.size(); i++)
 	{
-		output << mealy.inputAlphabet[count];
-		count++;
-		for (auto p : row)
+		vector<string> transitionsOnThatSymb;
+		for (auto state : mealy.states)
 		{
-			output << ';' << mealy.states[p.first] << '/' << p.second;
+			string stateNameAndOutput = mealy.stateNames[state.transitions[i]] + '/' + state.output[i];
+			transitionsOnThatSymb.push_back(stateNameAndOutput);
 		}
-		output << endl;
+		output << mealy.inputAlphabet[i];
+		PrintVector(output, transitionsOnThatSymb);
 	}
 }
 
@@ -166,7 +154,7 @@ void WriteMooreToFile(const MooreAutomata& moore, const string& outputFileName)
 		vector<string> transitionsOnThatSymb;
 		for (auto state : moore.states)
 		{
-			string stateName = moore.stateNames[state.transitions[i] - 1];
+			string stateName = moore.stateNames[state.transitions[i]];
 			transitionsOnThatSymb.push_back(stateName);
 		}
 		output << moore.inputAlphabet[i];

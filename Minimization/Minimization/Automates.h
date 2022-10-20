@@ -8,10 +8,13 @@ struct MooreState
 	int index;
 	string output;
 	vector<int> transitions;
-	bool operator==(MooreState const& other) const
-	{
-		return (index == other.index);
-	}
+};
+
+struct MealyState
+{
+	int index;
+	vector<string> output;
+	vector<int> transitions;
 };
 
 struct MooreAutomata
@@ -23,7 +26,7 @@ struct MooreAutomata
 
 struct MealyAutomata
 {
-	vector<string> states;
 	vector<string> inputAlphabet;
-	vector<vector<pair<int, string>>> transitionTable;
+	vector<string> stateNames;
+	vector<MealyState> states;
 };

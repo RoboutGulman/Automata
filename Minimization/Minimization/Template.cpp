@@ -7,7 +7,7 @@ using namespace std;
 
 struct Args
 {
-	string TransitType;
+	string AutomataType;
 	string InputFile;
 	string OutputFile;
 };
@@ -20,7 +20,7 @@ optional<Args> ParseArgs(int argc, char* argv[])
 		return nullopt;
 	}
 	Args args;
-	args.TransitType = argv[1];
+	args.AutomataType = argv[1];
 	args.InputFile = argv[2];
 	args.OutputFile = argv[3];
 	return args;
@@ -33,12 +33,14 @@ int main(int argc, char* argv[])
 	{
 		return 1;
 	}
-	if (args->TransitType == "mealy")
+	if (args->AutomataType == "mealy")
 	{
 		auto mealy = ReadMealy(args->InputFile);
+		auto minimizedMealy = MinimizeMealyAutomata(mealy);
+		WriteMealyToFile(minimizedMealy, args->OutputFile);
 		return 0;
 	}
-	if (args->TransitType == "moore")
+	if (args->AutomataType == "moore")
 	{
 		auto moore = ReadMoore(args->InputFile);
 		auto minimizedMoore = MinimizeMooreAutomata(moore);
