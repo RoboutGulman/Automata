@@ -35,16 +35,17 @@ int main(int argc, char* argv[])
 	}
 	if (args->AutomataType == "mealy")
 	{
-		auto mealy = ReadMealy(args->InputFile);
-		auto minimizedMealy = MinimizeAutomata<MealyAutomata, MealyState, vector<string>>(mealy); // MinimizeMealyAutomata(mealy);
+		using type = TypeSelector<AutomataType::Mealy>::type;
+		auto mealy = ReadMealyAutomata(args->InputFile);
+		auto minimizedMealy = MinimizeAutomata<type>(mealy);
 		WriteMealyToFile(minimizedMealy, args->OutputFile);
 		return 0;
 	}
 	if (args->AutomataType == "moore")
 	{
-		auto moore = ReadMoore(args->InputFile);
-		auto minimizedMoore = MinimizeAutomata<MooreAutomata, MooreState, string>(moore);
-		//MinimizeMooreAutomata(moore);
+		using type = TypeSelector<AutomataType::Moore>::type;
+		auto moore = ReadMooreAutomata(args->InputFile);
+		auto minimizedMoore = MinimizeAutomata<type>(moore);
 		WriteMooreToFile(minimizedMoore, args->OutputFile);
 		return 0;
 	}

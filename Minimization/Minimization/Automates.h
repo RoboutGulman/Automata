@@ -3,30 +3,44 @@
 
 using namespace std;
 
-struct MooreState
+enum class AutomataType
 {
+	Mealy,
+	Moore
+};
+
+template <AutomataType TYPE>
+struct TypeSelector
+{
+	using type = string;
+};
+
+template <>
+struct TypeSelector<AutomataType::Mealy>
+{
+	using type = vector<string>;
+};
+
+template <>
+struct TypeSelector<AutomataType::Moore>
+{
+	using type = string;
+};
+
+template <typename T>
+class AutomataState
+{
+public:
 	int index;
-	string output;
+	T output;
 	vector<int> transitions;
 };
 
-struct MealyState
+template <typename T>
+class Automata
 {
-	int index;
-	vector<string> output;
-	vector<int> transitions;
-};
-
-struct MooreAutomata
-{
+public:
 	vector<string> inputAlphabet;
 	vector<string> stateNames;
-	vector<MooreState> states;
-};
-
-struct MealyAutomata
-{
-	vector<string> inputAlphabet;
-	vector<string> stateNames;
-	vector<MealyState> states;
+	vector<AutomataState<T>> states;
 };

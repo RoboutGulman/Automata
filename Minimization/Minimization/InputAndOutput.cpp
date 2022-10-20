@@ -43,11 +43,11 @@ map<string, int> GetIndexedMapForVector(const vector<string>& vector)
 	return result;
 }
 
-MooreAutomata ReadMoore(const string& inputFileName)
+Automata<mooreType> ReadMooreAutomata(const string& inputFileName)
 {
 	vector<vector<string>> matrix = ReadFileAsMatrix(inputFileName);
 
-	MooreAutomata moore;
+	Automata<mooreType> moore;
 
 	matrix[0].erase(matrix[0].begin(), matrix[0].begin() + 2);
 	moore.inputAlphabet = matrix[0];
@@ -60,7 +60,7 @@ MooreAutomata ReadMoore(const string& inputFileName)
 
 	for (int i = 1; i < matrix.size(); i++)
 	{
-		MooreState state;
+		AutomataState<mooreType> state;
 		state.index = i - 1;
 		state.output = matrix[i][0];
 		matrix[i].erase(matrix[i].begin(), matrix[i].begin() + 2);
@@ -74,11 +74,11 @@ MooreAutomata ReadMoore(const string& inputFileName)
 	return moore;
 }
 
-MealyAutomata ReadMealy(const string& inputFileName)
+Automata<mealyType> ReadMealyAutomata(const string& inputFileName)
 {
 	vector<vector<string>> matrix = ReadFileAsMatrix(inputFileName);
 
-	MealyAutomata mealy;
+	Automata<mealyType> mealy;
 
 	matrix[0].erase(matrix[0].begin());
 	mealy.inputAlphabet = matrix[0];
@@ -91,7 +91,7 @@ MealyAutomata ReadMealy(const string& inputFileName)
 
 	for (int i = 1; i < matrix.size(); i++)
 	{
-		MealyState state;
+		AutomataState<mealyType> state;
 		state.index = i - 1;
 		matrix[i].erase(matrix[i].begin());
 		for (auto transition : matrix[i])
@@ -116,7 +116,7 @@ void PrintVector(ofstream& output, const vector<string>& vec)
 	output << endl;
 }
 
-void WriteMealyToFile(const MealyAutomata& mealy, const string& outputFileName)
+void WriteMealyToFile(const Automata<mealyType>& mealy, const string& outputFileName)
 {
 	std::ofstream output;
 	output.open(outputFileName);
@@ -135,7 +135,7 @@ void WriteMealyToFile(const MealyAutomata& mealy, const string& outputFileName)
 	}
 }
 
-void WriteMooreToFile(const MooreAutomata& moore, const string& outputFileName)
+void WriteMooreToFile(const Automata<mooreType>& moore, const string& outputFileName)
 {
 	std::ofstream output;
 	output.open(outputFileName);

@@ -5,7 +5,10 @@
 
 using namespace std;
 
-MooreAutomata ReadMoore(const string &inputFileName);
-MealyAutomata ReadMealy(const string &inputFileName);
-void WriteMealyToFile(const MealyAutomata &mealy, const string &outputFileName);
-void WriteMooreToFile(const MooreAutomata &moore, const string &outputFileName);
+using mooreType = TypeSelector<AutomataType::Moore>::type;
+using mealyType = TypeSelector<AutomataType::Mealy>::type;
+
+Automata<mooreType> ReadMooreAutomata(const string& inputFileName);
+Automata<mealyType> ReadMealyAutomata(const string& inputFileName);
+void WriteMealyToFile(const Automata<mealyType>& mealy, const string& outputFileName);
+void WriteMooreToFile(const Automata<mooreType>& moore, const string& outputFileName);

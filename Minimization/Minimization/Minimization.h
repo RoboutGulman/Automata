@@ -63,10 +63,10 @@ TemporaryAutomataInfo OneStep(const vector<vector<int>> statesTransitions, const
 	return result;
 }
 
-template <typename AUTOMATA_TYPE, typename STATE_TYPE, typename T>
-inline AUTOMATA_TYPE MinimizeAutomata(const AUTOMATA_TYPE& automata)
+template <typename T>
+Automata<T> MinimizeAutomata(const Automata<T>& automata)
 {
-	AUTOMATA_TYPE result;
+	Automata<T> result;
 	TemporaryAutomataInfo newTempAut;
 	map<T, int> outputsToGroup;
 	vector<vector<int>> statesTransitions;
@@ -97,7 +97,7 @@ inline AUTOMATA_TYPE MinimizeAutomata(const AUTOMATA_TYPE& automata)
 		{
 			if (it->second == i)
 			{
-				STATE_TYPE state;
+				AutomataState<T> state;
 				state.index = it->first;
 				state.output = automata.states[state.index].output;
 				vector<int> transitions;
